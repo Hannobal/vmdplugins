@@ -1,0 +1,30 @@
+dlconfigplugin:
+- for DL_POLY CONFIG files
+- supports velocities
+- extensions: .dlcfg, .cfg, .config
+- filetype "dlpolyfld" as flag and for tcl command "mol new" 
+
+dlfieldplugin:
+- for DL_POLY FIELD files
+- no coordinates but bond framework, masses, charges, etc.
+- molecule name becomes resname (only first eight characters)
+- number of molecule type becomes resid (starts with 0)
+- segid is a unique molecule ID
+- atomic number, element and radius are guessed from mass
+- extensions: .dlcfg, .cfg, .config
+- filetype "dlpolycfg" as flag and for tcl command "mol new" 
+
+lammpsdataplugin:
+- for LAMMPS data files
+- supports velocities
+- supports CGCMM stype:
+  - activate by keyword "CGCMM" anywhere in the header line (case sensitive)
+  - residue name and atom name appended to atoms. Example:
+    1      1      1 -1.200  2.05  3.23 -4.33 # H12 ALA
+  - atom types appended to masses. Example:
+    1      12.0100 # CA
+- atoms are renumbered if they are not continuousily numbered 1..N
+  but the order of their IDs is preserved
+- atomic number, element and radius are guessed from mass
+- extensions: .dlfld, .field
+- filetype "lammpsdata" as flag and for tcl command "mol new"
