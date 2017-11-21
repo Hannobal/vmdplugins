@@ -1,9 +1,12 @@
+plugins (*.so) need to be pasted to plugins/LINUXAMD64/molfile/
+in your VMD directory
+
 dlconfigplugin:
 - for DL_POLY CONFIG files
 - supports velocities
 - extensions: .dlcfg, .cfg, .config
 - filetype "dlpolyfld" as flag and for tcl command "mol new"
-- can be written from VMD
+- can write files from VMD
 
 dlfieldplugin:
 - for DL_POLY FIELD files
