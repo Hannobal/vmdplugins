@@ -2,7 +2,8 @@ dlconfigplugin:
 - for DL_POLY CONFIG files
 - supports velocities
 - extensions: .dlcfg, .cfg, .config
-- filetype "dlpolyfld" as flag and for tcl command "mol new" 
+- filetype "dlpolyfld" as flag and for tcl command "mol new"
+- can be written from VMD
 
 dlfieldplugin:
 - for DL_POLY FIELD files

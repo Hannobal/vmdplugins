@@ -86,6 +86,7 @@ public:
     free(charge);
     free(attypestr);
     free(resname);
+    free(atname);
     if (idmap != NULL) {
       inthash_destroy(idmap);
       free(idmap);
