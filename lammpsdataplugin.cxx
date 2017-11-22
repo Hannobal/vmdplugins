@@ -197,16 +197,11 @@ static bool read_lammpsdata_header(void *mydata)
       } else if(strcmp(str1,"zlo")==0 && strcmp(str2,"zhi")==0) {
         data->zlo=f1;
         data->zhi=f2;
-      } else {
-        fprintf(stderr,"lammpsdatadata) unknown cell line in header:\n");
-        fprintf(stderr,"lammpsdatadata) %s",fbuffer);
-        return false;
-      }
-    } else if(sscanf(fbuffer, "%f %f %f %s %s %s", &f1, &f2, &f3, str1, str2, str3)==6) {
-      if(strcmp(str1,"xy")==0 && strcmp(str2,"xz")==0 && strcmp(str3,"yz")==0) {
-        data->xy=f1;
-        data->xz=f2;
-        data->yz=f3;
+      } else if(sscanf(fbuffer, "%f %f %f %s %s %s", &f1, &f2, &f3, str1, str2, str3)==6
+        && strcmp(str1,"xy")==0 && strcmp(str2,"xz")==0 && strcmp(str3,"yz")==0) {
+          data->xy=f1;
+          data->xz=f2;
+          data->yz=f3;
       } else {
         fprintf(stderr,"lammpsdatadata) unknown cell line in header:\n");
         fprintf(stderr,"lammpsdatadata) %s",fbuffer);
@@ -537,6 +532,8 @@ static void *open_lammpsdata_read(const char *filename, const char *filetype,
       success = skip_lammpsdata_section(data,data->nimptypes,str);
     else if(strcmp(str,"Pair")==0)
       success = skip_lammpsdata_section(data,data->nattypes,str);
+    else if(strcmp(str,"PairIJ")==0)
+      success = skip_lammpsdata_section(data,data->nattypes*(data->nattypes+1)/2,str);
     else {
       fprintf(stderr, "%s%s%s",
         "lammpsdatadata) unknown section keyword ",str,":\n");
@@ -603,11 +600,11 @@ static int read_lammpsdata_timestep(void *mydata, int natoms, molfile_timestep_t
       memcpy(ts->velocities+3*i, data->vel+3*j, 3*sizeof(float));
 #endif
   }
-  if(data->xy <= 1.0e-10)
+  if(abs(data->xy) <= 1.0e-10)
     data->xy = 0.0;
-  if(data->xz <= 1.0e-10)
+  if(abs(data->xz) <= 1.0e-10)
     data->xz = 0.0;
-  if(data->yz <= 1.0e-10)
+  if(abs(data->yz) <= 1.0e-10)
     data->yz = 0.0;
   float lx = data->xhi - data->xlo;
   float ly = data->yhi - data->ylo;
@@ -615,9 +612,9 @@ static int read_lammpsdata_timestep(void *mydata, int natoms, molfile_timestep_t
   ts->A = lx;
   ts->B = sqrt(ly*ly + data->xy * data->xy);
   ts->C = sqrt(lz*lz + data->xz * data->xz + data->yz * data->yz);
-  ts->alpha = 90.0/M_PI_2 * acos((data->xy * data->xz + ly * data->yz)/(ts->B * ts->C));
-  ts->beta  = 90.0/M_PI_2 * acos(data->xz / ts->C);
-  ts->gamma = 90.0/M_PI_2 * acos(data->xy / ts->B);
+  ts->alpha = (90.0/M_PI_2) * acos((data->xy * data->xz + ly * data->yz)/(ts->B * ts->C));
+  ts->beta  = (90.0/M_PI_2) * acos(data->xz / ts->C);
+  ts->gamma = (90.0/M_PI_2) * acos(data->xy / ts->B);
   if(data->readtimestep==true) {
     return MOLFILE_EOF;
   } else {
