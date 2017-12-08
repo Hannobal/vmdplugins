@@ -12,8 +12,8 @@ dlfieldplugin:
 - for DL_POLY FIELD files
 - no coordinates but bond framework, masses, charges, etc.
 - molecule name becomes resname (only first eight characters)
-- number of molecule type becomes resid (starts with 0)
-- segid is a unique molecule ID
+- number of molecule type becomes segid (starts with 0)
+- resid is a unique molecule ID
 - atomic number, element and radius are guessed from mass
 - extensions: .dlcfg, .cfg, .config
 - filetype "dlpolycfg" as flag and for tcl command "mol new" 
@@ -32,3 +32,9 @@ lammpsdataplugin:
 - atomic number, element and radius are guessed from mass
 - extensions: .dlfld, .field
 - filetype "lammpsdata" as flag and for tcl command "mol new"
+
+#### change notes:
+2017-12-08
+switched resid and segid for dlfieldplugin, as more than 32768 different
+segids or resnames cause an overflow error.
+

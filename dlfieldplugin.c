@@ -41,7 +41,7 @@ public:
   int *molnents, *molnatoms, *molnshells, *molnconstraints, *molnbonds;
   int *molnangles, *molndiheds, *molnrigid, *molntether, *molninv;
   // values for atoms
-  int *molid, *resid;
+  int *molid, *moltypeid;
   float *atmass, *atcharge;
   char (*atname)[LENATNAME];
   char (*molname)[LENMOLNAME];
@@ -74,7 +74,7 @@ public:
     atname   = NULL;
     molname  = NULL;
     molid    = NULL;
-    resid    = NULL;
+    moltypeid       = NULL;
     molnents        = NULL;
     molnatoms       = NULL;
     molnshells      = NULL;
@@ -99,7 +99,7 @@ public:
     if(NULL != atname) delete [] atname;
     if(NULL != molname) delete [] molname;
     if(NULL != molid) delete [] molid;
-    if(NULL != resid) delete [] resid;
+    if(NULL != moltypeid) delete [] moltypeid;
     if(NULL != molnents) delete [] molnents;
     if(NULL != molnatoms) delete [] molnatoms;
     if(NULL != molnshells) delete [] molnshells;
@@ -457,16 +457,16 @@ static void *open_dlfld_read(const char *filename, const char *,
 //   printf("**** done with first iteration of reading\n");
   
   *natoms = data->natoms;
-  data->bdat1          = new int[data->nbonds];
-  data->bdat2          = new int[data->nbonds];
-  data->angleatoms     = new int[data->nangles*3];
-  data->dihedralatoms  = new int[data->ndiheds*4];
-  data->inversionatoms = new int[data->ninv*4];
-  data->atmass   = new float[data->natoms];
-  data->atcharge = new float[data->natoms];
-  data->molid    = new int[data->natoms];
-  data->resid    = new int[data->natoms];
-  data->atname   = new char[data->natoms][LENATNAME];
+  data->bdat1           = new int[data->nbonds];
+  data->bdat2           = new int[data->nbonds];
+  data->angleatoms      = new int[data->nangles*3];
+  data->dihedralatoms   = new int[data->ndiheds*4];
+  data->inversionatoms  = new int[data->ninv*4];
+  data->atmass          = new float[data->natoms];
+  data->atcharge        = new float[data->natoms];
+  data->molid           = new int[data->natoms];
+  data->moltypeid       = new int[data->natoms];
+  data->atname          = new char[data->natoms][LENATNAME];
   data->molname         = new char[data->nmols][LENMOLNAME];
   data->molnents        = new int[data->nmols];
   data->molnatoms       = new int[data->nmols];
@@ -559,10 +559,10 @@ static void *open_dlfld_read(const char *filename, const char *,
 // 	      printf("**** before: %d\n",iat);
 	      strncpy(data->atname[iat],buf1,LENATNAME);
 // 	      printf("**** after: %s\n",data->atname[iat]);
-	      data->atmass[iat]   = r1;
-	      data->atcharge[iat] = r2;
-	      data->resid[iat]    = t;
-	      data->molid[iat]    = mo+m;
+	      data->atmass[iat]    = r1;
+	      data->atcharge[iat]  = r2;
+	      data->moltypeid[iat] = t;
+	      data->molid[iat]     = mo+m;
 	    }
 	  }
 	  i += i1-1;
@@ -700,11 +700,12 @@ static int read_dlfld_structure(void *mydata, int *optflags,
     // segmentation faults occur when atom->name/type/segid/segname/resname are overfilled!
     strncpy(atom->name,data->atname[i],LENATNAME);
     strncpy(atom->type,data->atname[i],LENATNAME);
-    strncpy(atom->resname,data->molname[data->resid[i]],8);
-    sprintf(atom->segid,"%d",data->molid[i]);
+    // only 32768 different segids/resnames are allowed!
+    strncpy(atom->resname,data->molname[data->moltypeid[i]],8);
+    sprintf(atom->segid,"%d",data->moltypeid[i]);
     atom->mass   = data->atmass[i];
     atom->charge = data->atcharge[i];
-    atom->resid  = data->resid[i];
+    atom->resid  = data->molid[i];
     atom->chain[0] = '\0';
     int idx = get_pte_idx_from_mass(atom->mass);
     atom->radius = get_pte_vdw_radius(idx);
