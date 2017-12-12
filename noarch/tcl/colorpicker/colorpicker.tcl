@@ -234,8 +234,10 @@ proc ::ColorPicker::selectcolor {x y} {
   if {$i >= [colorinfo num]} { return }
   set x [expr $rectwdth*($i%$selectorrows)]
   set y [expr ($texthght+$recthght)*($i/$selectorrows)]
+  set p [expr $i%$selectorrows]
+  set l [expr $i/$selectorrows]
   set selected $i
-  $w.imgselect moveto marker $x $y
+  $w.imgselect coords marker [expr $rectwdth*$p] [expr ($texthght+$recthght)*$l] [expr $rectwdth*($p+1)] [expr ($texthght+$recthght)*($l+1)]
 #   after 500
   update
 }
